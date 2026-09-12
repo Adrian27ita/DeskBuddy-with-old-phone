@@ -2,25 +2,35 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<!-- viewport: impedisce lo zoom col doppio tap e adatta la larghezza allo schermo del telefono -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Buddy</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- #app: contenitore principale, centra tutto verticalmente/orizzontalmente (vedi CSS: display flex, column) -->
 <div id="app">
-  <div id="clock">--:--</div>
 
+  <!-- #buddy-wrap: raggruppa i due occhi. La classe "state-idle" viene cambiata via JS
+       (state-idle / state-happy / state-dizzy / state-sleepy) per far scattare i vari stili di stato -->
   <div id="buddy-wrap" class="state-idle">
-    <div id="buddy">
-      <div id="face">•‿•</div>
-      <div class="cheek cheek-left"></div>
-      <div class="cheek cheek-right"></div>
+    <div class="eye" id="eye-left">
+      <div class="pupil"></div>
+    </div>
+    <div class="eye" id="eye-right">
+      <div class="pupil"></div>
     </div>
   </div>
 
+  <!-- contenitore vuoto dove il JS crea/distrugge i cuoricini quando viene accarezzato -->
   <div id="hearts"></div>
 
+  <!-- orologio, aggiornato ogni 15 secondi dal JS -->
+  <div id="clock">--:--</div>
+
+  <!-- pulsante nascosto di default: compare solo su iPhone (iOS 13+), perche' li'
+       il permesso per leggere l'accelerometro va chiesto con un tap esplicito dell'utente -->
   <button id="enable-motion">Attiva sensori di movimento</button>
 </div>
 

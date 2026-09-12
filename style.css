@@ -1,183 +1,196 @@
+/* =========================================================
+   RESET DI BASE
+   Toglie margini di default, blocca lo scroll/zoom della pagina
+   e impedisce di selezionare il testo per sbaglio toccando lo schermo.
+   ========================================================= */
 html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    background: #E9E1F2;
-    touch-action: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    user-select: none;
-  }
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #000; /* sfondo nero della schermata */
+  touch-action: none; /* evita lo scroll/zoom con le dita */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* iOS: niente menu "copia" al tap prolungato */
+  user-select: none;
+}
 
-  body {
-    /* sfondo morbido a due toni, niente immagini esterne */
-    background: -webkit-linear-gradient(top, #F3E9F5 0%, #E3D6EE 55%, #D9CBEA 100%);
-    background: linear-gradient(to bottom, #F3E9F5 0%, #E3D6EE 55%, #D9CBEA 100%);
-    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    position: relative;
-  }
+body {
+  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  position: relative;
+}
 
-  #app {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-  }
+/* Contenitore principale: flexbox in colonna, tutto centrato.
+   L'ORDINE con cui gli elementi compaiono qui sotto nell'HTML
+   e' l'ordine in cui appaiono verticalmente sullo schermo. */
+#app {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
 
-  /* Orologio: pillola morbida in alto */
-  #clock {
-    position: absolute;
-    top: 7%;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    font-size: 15px;
-    letter-spacing: 1px;
-    color: #6B5279;
-    background: rgba(255,255,255,0.55);
-    padding: 8px 20px;
-    border-radius: 999px;
-    font-variant-numeric: tabular-nums;
-  }
 
-  #buddy-wrap {
-    position: relative;
-    width: 220px;
-    height: 220px;
-  }
+/* =========================================================
+   OCCHI
+   Ogni occhio e' un div bianco ovale (.eye) con dentro
+   una pupilla nera (.pupil) che il JS sposta con transform.
+   ========================================================= */
+#buddy-wrap {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  gap: 46px; /* distanza tra i due occhi */
+}
 
-  #buddy {
-    position: absolute;
-    top: 0; left: 0;
-    width: 220px;
-    height: 220px;
-    border-radius: 46% 54% 55% 45% / 55% 48% 52% 45%;
-    background: -webkit-radial-gradient(35% 30%, circle, #FFD9E8 0%, #F6A9C9 60%, #EE8FBC 100%);
-    background: radial-gradient(circle at 35% 30%, #FFD9E8 0%, #F6A9C9 60%, #EE8FBC 100%);
-    box-shadow: 0 18px 40px rgba(150, 90, 140, 0.28);
-    -webkit-animation: breathe 3.2s ease-in-out infinite;
-    animation: breathe 3.2s ease-in-out infinite;
-  }
+.eye {
+  position: relative;
+  width: 76px;
+  height: 108px;                 /* <-- cambia qui per occhi piu' grandi/piccoli */
+  border-radius: 50%;
+  background: #F4F4F8;           /* <-- colore occhio a riposo */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  overflow: hidden;               /* la pupilla non puo' uscire dal bordo dell'occhio */
+  -webkit-transition: height .18s ease, background .3s ease;
+  transition: height .18s ease, background .3s ease; /* rende morbido il battito di ciglia */
+  -webkit-transform-origin: center;
+  transform-origin: center;
+}
 
-  #face {
-    position: absolute;
-    top: 50%; left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    font-size: 46px;
-    color: #5B3E56;
-    white-space: nowrap;
-  }
+/* Classe aggiunta/tolta velocemente dal JS per simulare il battito di ciglia */
+.eye.blink {
+  height: 10px;
+}
 
-  .cheek {
-    position: absolute;
-    width: 26px;
-    height: 16px;
-    border-radius: 50%;
-    background: #FF87AE;
-    opacity: 0;
-    -webkit-transition: opacity .35s ease;
-    transition: opacity .35s ease;
-  }
-  .cheek-left  { left: 34px;  top: 128px; }
-  .cheek-right { right: 34px; top: 128px; }
+.pupil {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #000;
+  -webkit-transition: -webkit-transform .6s ease;
+  transition: transform .6s ease; /* movimento morbido quando lo sguardo si sposta */
+}
 
-  /* Stati */
-  .state-happy .cheek { opacity: 0.55; }
 
-  .state-dizzy #buddy {
-    -webkit-animation: wobble .35s ease-in-out 3, breathe 3.2s ease-in-out infinite;
-    animation: wobble .35s ease-in-out 3, breathe 3.2s ease-in-out infinite;
-  }
+/* =========================================================
+   STATI DEL BUDDY
+   Il JS cambia la classe di #buddy-wrap tra:
+   state-idle / state-happy / state-dizzy / state-sleepy
+   Qui sotto definiamo come cambia l'aspetto in ciascun caso.
+   ========================================================= */
 
-  .state-sleepy #buddy {
-    background: -webkit-radial-gradient(35% 30%, circle, #E4D3EC 0%, #C9AEDB 60%, #B79BD1 100%);
-    background: radial-gradient(circle at 35% 30%, #E4D3EC 0%, #C9AEDB 60%, #B79BD1 100%);
-    -webkit-animation: breathe-slow 4.5s ease-in-out infinite;
-    animation: breathe-slow 4.5s ease-in-out infinite;
-  }
+/* Accarezzato: occhi socchiusi e rosa, tipo "^_^" */
+.state-happy .eye {
+  height: 36px;
+  background: #FFB9D6;
+}
+.state-happy .pupil {
+  opacity: 0; /* occhi troppo chiusi per vedere la pupilla */
+}
 
-  @-webkit-keyframes breathe {
-    0%, 100% { -webkit-transform: scale(1); }
-    50%      { -webkit-transform: scale(1.035); }
-  }
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.035); }
-  }
+/* Scosso: occhi viola, pupille che si muovono a scatti (vedi script.js) */
+.state-dizzy .eye {
+  background: #C9B6FF;
+}
+.state-dizzy .pupil {
+  -webkit-transition: -webkit-transform .15s ease;
+  transition: transform .15s ease; /* movimento piu' rapido/scattoso durante la scossa */
+}
 
-  @-webkit-keyframes breathe-slow {
-    0%, 100% { -webkit-transform: scale(1); }
-    50%      { -webkit-transform: scale(1.02); }
-  }
-  @keyframes breathe-slow {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.02); }
-  }
+/* Notte (23:00 - 07:00, deciso automaticamente dall'orologio): occhi quasi chiusi e spenti */
+.state-sleepy .eye {
+  height: 18px;
+  background: #8B8B99;
+}
+.state-sleepy .pupil {
+  opacity: 0;
+}
 
-  @-webkit-keyframes wobble {
-    0%   { -webkit-transform: rotate(0deg); }
-    25%  { -webkit-transform: rotate(-7deg); }
-    75%  { -webkit-transform: rotate(7deg); }
-    100% { -webkit-transform: rotate(0deg); }
-  }
-  @keyframes wobble {
-    0%   { transform: rotate(0deg); }
-    25%  { transform: rotate(-7deg); }
-    75%  { transform: rotate(7deg); }
-    100% { transform: rotate(0deg); }
-  }
 
-  /* Cuoricini che salgono quando viene accarezzato */
-  #hearts {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-  }
-  .heart {
-    position: absolute;
-    top: 55%;
-    font-size: 20px;
-    color: #FF6FA0;
-    opacity: 0.9;
-    -webkit-animation: float-up 1.5s ease-out forwards;
-    animation: float-up 1.5s ease-out forwards;
-  }
-  @-webkit-keyframes float-up {
-    0%   { -webkit-transform: translateY(0) scale(0.6); opacity: 0; }
-    15%  { opacity: 1; }
-    100% { -webkit-transform: translateY(-140px) scale(1.1); opacity: 0; }
-  }
-  @keyframes float-up {
-    0%   { transform: translateY(0) scale(0.6); opacity: 0; }
-    15%  { opacity: 1; }
-    100% { transform: translateY(-140px) scale(1.1); opacity: 0; }
-  }
+/* =========================================================
+   CUORICINI (animazione quando viene accarezzato)
+   ========================================================= */
+#hearts {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; /* non deve intercettare i tocchi, altrimenti blocca gli occhi sotto */
+}
 
-  #enable-motion {
-    display: none;
-    position: absolute;
-    bottom: 8%;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    border: none;
-    border-radius: 999px;
-    padding: 10px 18px;
-    font-size: 13px;
-    color: #6B5279;
-    background: rgba(255,255,255,0.7);
-  }
+.heart {
+  position: absolute;
+  top: 40%;
+  font-size: 22px;
+  color: #FF6FA0;
+  opacity: 0.9;
+  -webkit-animation: float-up 1.5s ease-out forwards;
+  animation: float-up 1.5s ease-out forwards;
+}
+
+/* Il cuoricino nasce piccolo e trasparente, sale, e sparisce in dissolvenza */
+@-webkit-keyframes float-up {
+  0%   { -webkit-transform: translateY(0) scale(0.6); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { -webkit-transform: translateY(-140px) scale(1.1); opacity: 0; }
+}
+@keyframes float-up {
+  0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateY(-140px) scale(1.1); opacity: 0; }
+}
+
+
+/* =========================================================
+   OROLOGIO
+   Sta DOPO #buddy-wrap nell'HTML, quindi nel flex-container
+   in colonna finisce visivamente sotto agli occhi.
+   ========================================================= */
+#clock {
+  margin-top: 100px;         /* distanza dagli occhi sopra */
+  font-size: 72px;          /* <-- cambia qui per un orologio piu' grande/piccolo */
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #F4F4F8;
+  font-variant-numeric: tabular-nums; /* le cifre non "ballano" quando cambiano */
+}
+
+
+/* =========================================================
+   PULSANTE PERMESSO SENSORI (visibile solo su iPhone, gestito dal JS)
+   ========================================================= */
+#enable-motion {
+  display: none; /* il JS lo mostra solo se il browser lo richiede (iOS 13+) */
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: #F4F4F8;
+  background: rgba(255,255,255,0.15);
+}
