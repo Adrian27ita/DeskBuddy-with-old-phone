@@ -12,15 +12,35 @@
 <!-- #app: contenitore principale, centra tutto verticalmente/orizzontalmente (vedi CSS: display flex, column) -->
 <div id="app">
 
-  <!-- #buddy-wrap: raggruppa i due occhi. La classe "state-idle" viene cambiata via JS
-       (state-idle / state-happy / state-dizzy / state-sleepy) per far scattare i vari stili di stato -->
+  <!-- #buddy-wrap: raggruppa i due "eye-group" (occhio + lineette sotto). La classe "state-idle"
+       viene cambiata via JS (state-idle / state-happy / state-dizzy / state-sleepy / state-alarm)
+       per far scattare i vari stili di stato su TUTTI i figli in un colpo solo -->
   <div id="buddy-wrap" class="state-idle">
-    <div class="eye" id="eye-left">
-      <div class="pupil"></div>
+
+    <!-- occhio sinistro + le sue 3 lineette sotto, raggruppati insieme cosi' restano allineati -->
+    <div class="eye-group">
+      <div class="eye" id="eye-left">
+        <div class="pupil"></div>
+      </div>
+      <div class="lashes_L">
+        <span class="lash"></span>
+        <span class="lash"></span>
+        <span class="lash"></span>
+      </div>
     </div>
-    <div class="eye" id="eye-right">
-      <div class="pupil"></div>
+
+    <!-- occhio destro + le sue 3 lineette sotto -->
+    <div class="eye-group">
+      <div class="eye" id="eye-right">
+        <div class="pupil"></div>
+      </div>
+      <div class="lashes_R">
+        <span class="lash"></span>
+        <span class="lash"></span>
+        <span class="lash"></span>
+      </div>
     </div>
+
   </div>
 
   <!-- contenitore vuoto dove il JS crea/distrugge i cuoricini quando viene accarezzato -->
@@ -32,6 +52,34 @@
   <!-- pulsante nascosto di default: compare solo su iPhone (iOS 13+), perche' li'
        il permesso per leggere l'accelerometro va chiesto con un tap esplicito dell'utente -->
   <button id="enable-motion">Attiva sensori di movimento</button>
+
+
+  <!-- =========================================================
+       SVEGLIA
+       ========================================================= -->
+
+  <!-- elemento audio invisibile: il JS gli cambia "src" e lo fa partire quando scatta una sveglia -->
+  <audio id="alarm-audio" preload="none"></audio>
+
+  <!-- pulsante che compare SOLO mentre la sveglia sta suonando -->
+  <button id="stop-alarm">Ferma</button>
+
+  <!-- icona ingranaggio in un angolo, apre/chiude il pannello impostazioni sveglie -->
+  <button id="settings-btn" aria-label="Impostazioni sveglie">⚙</button>
+
+  <!-- pannello impostazioni: nascosto di default (display:none nel CSS), il JS lo mostra/nasconde -->
+  <div id="settings-panel">
+    <div id="settings-header">
+      <span>Sveglie</span>
+      <button id="settings-close" aria-label="Chiudi">✕</button>
+    </div>
+
+    <!-- qui dentro il JS crea/aggiorna dinamicamente una riga per ogni sveglia salvata -->
+    <div id="alarms-list"></div>
+
+    <button id="add-alarm">+ Aggiungi sveglia</button>
+  </div>
+
 </div>
 
 <script src="script.js"></script>

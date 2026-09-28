@@ -46,6 +46,8 @@ body {
    OCCHI
    Ogni occhio e' un div bianco ovale (.eye) con dentro
    una pupilla nera (.pupil) che il JS sposta con transform.
+   Ogni occhio e' avvolto insieme alle sue lineette in un
+   ".eye-group", cosi' restano sempre allineati verticalmente.
    ========================================================= */
 #buddy-wrap {
   display: -webkit-box;
@@ -57,9 +59,22 @@ body {
   gap: 46px; /* distanza tra i due occhi */
 }
 
+/* Contenitore verticale: occhio sopra, lineette sotto */
+.eye-group {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
 .eye {
   position: relative;
-  width: 76px;
+  width: 96px;
   height: 108px;                 /* <-- cambia qui per occhi piu' grandi/piccoli */
   border-radius: 50%;
   background: #F4F4F8;           /* <-- colore occhio a riposo */
@@ -85,20 +100,62 @@ body {
 }
 
 .pupil {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #000;
   -webkit-transition: -webkit-transform .6s ease;
   transition: transform .6s ease; /* movimento morbido quando lo sguardo si sposta */
 }
 
+/* ---------------------------------------------------------
+   LINEETTE SOTTO L'OCCHIO (il tocco "carino")
+   3 bastoncini disposti a ventaglio, come piccole ciglia.
+   Stanno FUORI da .eye (non dentro), altrimenti "overflow:
+   hidden" sull'occhio le taglierebbe via.
+   --------------------------------------------------------- */
+.lashes_R {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  gap: 4px;
+  margin-top: 20px; /* <-- distanza tra occhio e lineette */
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.lashes_L {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  gap: 4px;
+  margin-top: 20px; /* <-- distanza tra occhio e lineette */
+  -webkit-transform: rotate(-90deg);
+  transform: rotate(-90deg);
+}
+
+.lash {
+  width: 3px;
+  height: 12px;              /* <-- cambia qui la lunghezza delle lineette */
+  border-radius: 3px;
+  background: #F4F4F8;       /* segue lo stesso colore dell'occhio a riposo */
+  -webkit-transition: background .3s ease;
+  transition: background .3s ease;
+}
+
+/* il ventaglio: la lineetta centrale dritta, le due laterali inclinate */
+.lash:nth-child(1) { -webkit-transform: rotate(-20deg); transform: rotate(-20deg); }
+.lash:nth-child(2) { -webkit-transform: rotate(0deg);   transform: rotate(0deg); }
+.lash:nth-child(3) { -webkit-transform: rotate(20deg);  transform: rotate(20deg); }
+
 
 /* =========================================================
    STATI DEL BUDDY
    Il JS cambia la classe di #buddy-wrap tra:
-   state-idle / state-happy / state-dizzy / state-sleepy
+   state-idle / state-happy / state-dizzy / state-sleepy / state-alarm
    Qui sotto definiamo come cambia l'aspetto in ciascun caso.
+   Le lineette cambiano colore insieme all'occhio, cosi'
+   restano coordinate in ogni stato.
    ========================================================= */
 
 /* Accarezzato: occhi socchiusi e rosa, tipo "^_^" */
@@ -109,6 +166,9 @@ body {
 .state-happy .pupil {
   opacity: 0; /* occhi troppo chiusi per vedere la pupilla */
 }
+.state-happy .lash {
+  background: #FFB9D6;
+}
 
 /* Scosso: occhi viola, pupille che si muovono a scatti (vedi script.js) */
 .state-dizzy .eye {
@@ -118,6 +178,9 @@ body {
   -webkit-transition: -webkit-transform .15s ease;
   transition: transform .15s ease; /* movimento piu' rapido/scattoso durante la scossa */
 }
+.state-dizzy .lash {
+  background: #C9B6FF;
+}
 
 /* Notte (23:00 - 07:00, deciso automaticamente dall'orologio): occhi quasi chiusi e spenti */
 .state-sleepy .eye {
@@ -126,6 +189,27 @@ body {
 }
 .state-sleepy .pupil {
   opacity: 0;
+}
+.state-sleepy .lash {
+  background: #8B8B99;
+}
+
+/* Sveglia che suona: occhi spalancati gialli, che pulsano per attirare l'attenzione */
+.state-alarm .eye {
+  background: #FFD84D;
+  -webkit-animation: alarm-pulse .5s ease-in-out infinite;
+  animation: alarm-pulse .5s ease-in-out infinite;
+}
+.state-alarm .lash {
+  background: #FFD84D;
+}
+@-webkit-keyframes alarm-pulse {
+  0%, 100% { -webkit-transform: scale(1); }
+  50%      { -webkit-transform: scale(1.12); }
+}
+@keyframes alarm-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
 }
 
 
@@ -168,7 +252,7 @@ body {
    in colonna finisce visivamente sotto agli occhi.
    ========================================================= */
 #clock {
-  margin-top: 100px;         /* distanza dagli occhi sopra */
+  margin-top: 80px;         /* distanza dagli occhi/lineette sopra */
   font-size: 72px;          /* <-- cambia qui per un orologio piu' grande/piccolo */
   font-weight: 600;
   letter-spacing: 2px;
@@ -193,4 +277,127 @@ body {
   font-size: 13px;
   color: #F4F4F8;
   background: rgba(255,255,255,0.15);
+}
+
+
+/* =========================================================
+   SVEGLIA: pulsante "Ferma", ingranaggio e pannello impostazioni
+   ========================================================= */
+
+/* Pulsante grande e rosso, visibile SOLO mentre la sveglia suona (il JS lo mostra/nasconde) */
+#stop-alarm {
+  display: none;
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  border: none;
+  border-radius: 999px;
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background: #FF4D6D;
+  z-index: 20; /* deve stare sopra al pannello impostazioni, se mai fossero aperti insieme */
+}
+
+/* Ingranaggio: piccolo, discreto, in alto a sinistra */
+#settings-btn {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  color: #F4F4F8;
+  font-size: 18px;
+  z-index: 10;
+}
+
+/* Pannello impostazioni: nascosto di default, il JS lo mostra aggiungendo/togliendo la classe "open" */
+#settings-panel {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 15;
+  padding: 60px 24px 24px 24px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  overflow-y: auto; /* se ci sono tante sveglie, si puo' scorrere */
+}
+#settings-panel.open {
+  display: block;
+}
+
+#settings-header {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  color: #F4F4F8;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+#settings-close {
+  border: none;
+  background: transparent;
+  color: #F4F4F8;
+  font-size: 20px;
+}
+
+/* Una riga = una sveglia. Il JS ne genera una per ogni sveglia salvata dentro #alarms-list */
+.alarm-row {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap; /* su schermi molto stretti gli elementi vanno a capo invece di uscire dal bordo */
+}
+
+.alarm-row input[type="time"],
+.alarm-row select {
+  font-size: 16px;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+}
+
+.alarm-row .alarm-delete {
+  margin-left: auto;
+  border: none;
+  background: rgba(255,77,109,0.25);
+  color: #FF4D6D;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 16px;
+}
+
+#add-alarm {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  background: #F4F4F8;
 }
