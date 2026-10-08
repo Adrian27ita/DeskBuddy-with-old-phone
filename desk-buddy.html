@@ -12,35 +12,10 @@
 <!-- #app: contenitore principale, centra tutto verticalmente/orizzontalmente (vedi CSS: display flex, column) -->
 <div id="app">
 
-  <!-- #buddy-wrap: raggruppa i due "eye-group" (occhio + lineette sotto). La classe "state-idle"
-       viene cambiata via JS (state-idle / state-happy / state-dizzy / state-sleepy / state-alarm)
-       per far scattare i vari stili di stato su TUTTI i figli in un colpo solo -->
+  <!-- #buddy-wrap: contiene il viso in pixel art, disegnato dal JS su un <canvas>.
+       La classe "state-..." viene aggiornata dal JS (idle / happy / dizzy / sleepy / alarm) -->
   <div id="buddy-wrap" class="state-idle">
-
-    <!-- occhio sinistro + le sue 3 lineette sotto, raggruppati insieme cosi' restano allineati -->
-    <div class="eye-group">
-      <div class="eye" id="eye-left">
-        <div class="pupil"></div>
-      </div>
-      <div class="lashes_L">
-        <span class="lash"></span>
-        <span class="lash"></span>
-        <span class="lash"></span>
-      </div>
-    </div>
-
-    <!-- occhio destro + le sue 3 lineette sotto -->
-    <div class="eye-group">
-      <div class="eye" id="eye-right">
-        <div class="pupil"></div>
-      </div>
-      <div class="lashes_R">
-        <span class="lash"></span>
-        <span class="lash"></span>
-        <span class="lash"></span>
-      </div>
-    </div>
-
+    <canvas id="face"></canvas>
   </div>
 
   <!-- contenitore vuoto dove il JS crea/distrugge i cuoricini quando viene accarezzato -->
@@ -78,6 +53,12 @@
     <div id="alarms-list"></div>
 
     <button id="add-alarm">+ Aggiungi sveglia</button>
+
+    <!-- tracce scelte dalla memoria del telefono: il JS riempie la lista e usa il campo file nascosto -->
+    <div id="tracks-title">Suonerie</div>
+    <div id="tracks-list"></div>
+    <button id="add-tracks">+ Scegli tracce dal telefono</button>
+    <input type="file" id="tracks-input" accept="audio/*" multiple style="display:none">
   </div>
 
 </div>
