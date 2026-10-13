@@ -28,11 +28,7 @@
   // Puoi aggiungerne o toglierne quante ne vuoi, basta rispettare la
   // stessa forma: 'nomefile.mp3',
   // -----------------------------------------------------------------
-  var TRACKS = [
-    'traccia1.mp3',
-    'traccia2.mp3',
-    'traccia3.mp3'
-  ];
+  var TRACKS = [];  // esempio: ['traccia1.mp3', 'traccia2.mp3']
 
   // baseline = lo stato "di fondo" quando non sta succedendo nulla di speciale.
   // Puo' essere 'idle' (normale) oppure 'sleepy' (notte), deciso dall'orologio.
@@ -154,10 +150,30 @@
     }
   }
 
+  // occhio a cuoricino (stato "love")
+  function heartEye(cx, cy, c) {
+    var rows = [[1, 2, 4, 5], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5], [2, 3, 4], [3]];
+    for (var r = 0; r < rows.length; r++) {
+      for (var k = 0; k < rows[r].length; k++) { px(cx - 3 + rows[r][k], cy - 3 + r, c); }
+    }
+  }
+
+  // occhi del solletico: sinistro ">" e destro "<"
+  function tickleEye(cx, cy) {
+    var ax = cx < 20 ? cx : cx - 1; // punta dell'angolo, allineata a specchio tra i due occhi
+    for (var i = 0; i < 4; i++) {
+      if (cx < 20) { px(ax - 3 + i, cy - 3 + i, '#FFB3C7'); px(ax - 3 + i, cy + 3 - i, '#FFB3C7'); }
+      else         { px(ax + 3 - i, cy - 3 + i, '#FFB3C7'); px(ax + 3 - i, cy + 3 - i, '#FFB3C7'); }
+    }
+  }
+
   function sparkle(x, y, c) { pts([[x, y], [x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]], c); }
 
   function drawEye(s, cx, cy) {
-    if (s === 'happy')  { archEye(cx, cy, '#FF9EC4'); }
+    if (s === 'love')      { heartEye(cx, cy, '#FF4D8D'); }
+    else if (s === 'tickle')    { tickleEye(cx, cy); }
+    else if (s === 'surprised') { openEye(cx, cy, 5.2, 7, '#7FDCFF', '#3C8DD8'); }
+    else if (s === 'happy')  { archEye(cx, cy, '#FF9EC4'); }
     else if (s === 'dizzy')  { dizzyEye(cx, cy, '#C9B6FF'); }
     else if (s === 'sleepy') { lineEye(cx, cy + 1, '#8B8B99'); }
     else if (s === 'alarm')  { openEye(cx, cy, 5, 6.6, '#FFD84D', '#E0A800'); }
@@ -166,7 +182,13 @@
   }
 
   function drawMouth(s) {
-    if (s === 'happy') {
+    if (s === 'tickle') {
+      rect(16, 22, 8, 1, '#FF6FA0'); rect(17, 23, 6, 1, '#FF6FA0'); rect(18, 24, 4, 1, '#FF6FA0'); rect(19, 24, 2, 1, '#FFB3C7');
+    } else if (s === 'surprised') {
+      rect(19, 22, 2, 2, '#FF6FA0');
+    } else if (s === 'love') {
+      pts([[17, 22], [18, 23], [19, 22], [20, 22], [21, 23], [22, 22]], '#FF9EC4');
+    } else if (s === 'happy') {
       rect(17, 22, 6, 1, '#FF6FA0'); rect(18, 23, 4, 1, '#FF6FA0'); rect(19, 23, 2, 1, '#FFB3C7');
     } else if (s === 'dizzy') {
       pts([[17, 23], [18, 22], [19, 23], [20, 22], [21, 23], [22, 22]], '#C9B6FF');
@@ -184,12 +206,14 @@
     drawEye(s, 30, 11);
 
     // guanciotte rosa (piu' vivaci quando e' felice, assenti se stordito o in allarme)
-    var blush = s === 'happy' ? '#FF6FA0' : (s === 'idle' ? '#6E2A4A' : (s === 'sleepy' ? '#4D2A45' : null));
+    var blush = (s === 'happy' || s === 'love' || s === 'tickle') ? '#FF6FA0'
+              : ((s === 'idle' || s === 'surprised') ? '#6E2A4A' : (s === 'sleepy' ? '#4D2A45' : null));
     if (blush) { ellipse(8, 19.5, 2.4, 1.2, blush); ellipse(32, 19.5, 2.4, 1.2, blush); }
 
     drawMouth(s);
 
-    if (s === 'happy') { // scintillii che si alternano
+    if (s === 'surprised') { rect(19, 1, 2, 3, '#FFD84D'); rect(19, 5, 2, 1, '#FFD84D'); } // punto esclamativo
+    if (s === 'happy' || s === 'love') { // scintillii che si alternano
       if (tick % 8 < 4) { sparkle(3, 5, '#FFFFFF'); } else { sparkle(36, 7, '#FFFFFF'); }
     }
     if (s === 'sleepy') { // una piccola "z" che fluttua
@@ -206,6 +230,9 @@
     if (s === 'sleepy') { oy = (tick % 30 < 15) ? 0 : 1; }  // respiro ancora piu' lento
     if (s === 'dizzy')  { ox = (tick % 2) ? -1 : 1; }       // trema
     if (s === 'alarm')  { oy = (tick % 2) ? 0 : 1; }        // salta
+    if (s === 'tickle')    { ox = (tick % 2) ? -1 : 1; oy = (tick % 4 < 2) ? 0 : 1; } // ride e si dimena
+    if (s === 'love')      { oy = (tick % 10 < 5) ? 0 : 1; }                          // batte come un cuore
+    if (s === 'surprised') { oy = -1; }                                                // salta su
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.translate(ox * SCALE, oy * SCALE);
@@ -251,8 +278,8 @@
 
   // =========================================================
   // OROLOGIO
-  // Aggiorna l'ora ogni 15 secondi (non serve ogni secondo,
-  // risparmia batteria), decide se e' "notte" (23:00-07:00),
+  // Controlla l'ora ogni secondo, cosi' il minuto cambia subito (il testo
+  // viene riscritto solo quando cambia davvero), decide se e' "notte" (23:00-07:00),
   // e controlla se e' scattata una sveglia.
   // =========================================================
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -261,7 +288,8 @@
     var now = new Date();
     var h = now.getHours();
     var m = now.getMinutes();
-    clockEl.textContent = pad(h) + ':' + pad(m);
+    var text = pad(h) + ':' + pad(m);
+    if (clockEl.textContent !== text) { clockEl.textContent = text; }
 
     // cambia qui gli orari se vuoi che la "modalita' notte" scatti prima/dopo
     var newBaseline = (h >= 23 || h < 7) ? 'sleepy' : 'idle';
@@ -273,7 +301,7 @@
     checkAlarms(now, h, m);
   }
   updateClock();
-  setInterval(updateClock, 1000 * 15);
+  setInterval(updateClock, 1000);
 
 
   // =========================================================
@@ -290,31 +318,80 @@
     }, 1600); // deve combaciare con la durata dell'animazione float-up nel CSS
   }
 
+  // =========================================================
+  // CAREZZE E TOCCHI
+  // La reazione cambia in base a COME tocchi il viso:
+  //   tocco rapido ......... "sorpreso" (occhioni e "!")
+  //   carezza lenta ........ "felice" (occhi a ^ e cuoricini)
+  //   carezza veloce ....... "solletico" (ride, occhi > <)
+  //   tenere premuto ....... "innamorato" (occhi a cuoricino)
+  // =========================================================
+  var TICKLE_SPEED = 0.9;  // velocita' del dito (px per millisecondo) oltre la quale e' solletico
+  var HOLD_MS = 700;       // quanto tenere premuto per l'effetto "innamorato"
   var lastHeartTime = 0;
-  function handlePet() {
-    if (alarmRinging) { return; } // mentre suona la sveglia, il tocco non deve cambiare l'espressione
-    reactTemporarily('happy', 1500);
+  var g = { on: false, moved: false, startT: 0, x: 0, y: 0, t: 0, dist: 0, speed: 0, timer: null };
+
+  function maybeHeart() {
     var now = Date.now();
-    if (now - lastHeartTime > 220) { // limite per non creare un cuoricino ad ogni singolo pixel di movimento
-      lastHeartTime = now;
-      spawnHeart();
-    }
+    if (now - lastHeartTime > 220) { lastHeartTime = now; spawnHeart(); } // non un cuoricino ad ogni pixel
   }
 
-  wrap.addEventListener('touchstart', handlePet, { passive: true });
+  function gestureStart(x, y) {
+    if (alarmRinging) { return; } // mentre suona la sveglia i tocchi non cambiano l'espressione
+    g.on = true; g.moved = false; g.dist = 0; g.speed = 0;
+    g.startT = g.t = Date.now(); g.x = x; g.y = y;
+    clearTimeout(g.timer);
+    g.timer = setTimeout(function () {
+      if (g.on && !g.moved) { reactTemporarily('love', 2500); maybeHeart(); }
+    }, HOLD_MS);
+  }
+
+  function gestureMove(x, y) {
+    if (!g.on || alarmRinging) { return; }
+    var now = Date.now(), dx = x - g.x, dy = y - g.y;
+    var d = Math.sqrt(dx * dx + dy * dy), dt = Math.max(now - g.t, 1);
+    g.dist += d;
+    g.speed = g.speed * 0.6 + (d / dt) * 0.4; // media mobile, per non reagire ai singoli scatti
+    g.x = x; g.y = y; g.t = now;
+    if (g.dist > 12) { g.moved = true; clearTimeout(g.timer); } // si e' mosso: non e' piu' una pressione lunga
+    if (!g.moved) { return; }
+    if (g.speed > TICKLE_SPEED) { reactTemporarily('tickle', 900); }
+    else { reactTemporarily('happy', 1200); maybeHeart(); }
+  }
+
+  function gestureEnd() {
+    if (!g.on) { return; }
+    g.on = false;
+    clearTimeout(g.timer);
+    if (!g.moved && Date.now() - g.startT < 350) { reactTemporarily('surprised', 900); } // tocco rapido
+  }
+
+  wrap.addEventListener('touchstart', function (e) { var t = e.touches[0]; gestureStart(t.clientX, t.clientY); }, { passive: true });
   wrap.addEventListener('touchmove', function (e) {
-    handlePet();
+    var t = e.touches[0];
+    gestureMove(t.clientX, t.clientY);
     e.preventDefault(); // evita che il trascinamento faccia scrollare la pagina
   }, { passive: false });
-  wrap.addEventListener('mousedown', handlePet); // comodo per provarlo col mouse da computer
+  wrap.addEventListener('touchend', function (e) {
+    gestureEnd();
+    if (e.cancelable) { e.preventDefault(); } // evita il "falso click" del mouse dopo il tocco
+  }, { passive: false });
+  wrap.addEventListener('touchcancel', gestureEnd);
+  // stessi gesti col mouse, comodo per provarli dal computer
+  wrap.addEventListener('mousedown', function (e) { gestureStart(e.clientX, e.clientY); });
+  window.addEventListener('mousemove', function (e) { gestureMove(e.clientX, e.clientY); });
+  window.addEventListener('mouseup', gestureEnd);
 
 
   // =========================================================
   // SCOSSA (accelerometro del telefono)
   // =========================================================
-  // Sensibilita': piu' BASSO = reagisce anche a scosse leggere (prima era 25).
+  // Sensibilita': piu' BASSO = reagisce anche a scosse leggere.
   // Se scatta da solo mentre cammina/appoggi il telefono, alzalo un po'.
-  var SHAKE_THRESHOLD = 12;
+  var SHAKE_THRESHOLD = 10;
+  var SHAKE_STRONG = 15; // oltre questo valore la scossa e' "forte": stordimento piu' lungo
+  var SHAKE_WINDOW_MS = 300; // per quanto tempo misuriamo il picco della scossa prima di decidere
+  var shakePeak = 0, shakeTimer = null;
   var lastX = null, lastY = null, lastZ = null, lastShakeTime = 0;
 
   function handleMotion(e) {
@@ -330,9 +407,21 @@
       var now = Date.now();
 
       // oltre la soglia consideriamo il movimento una "scossa" (vedi SHAKE_THRESHOLD)
-      if (delta > SHAKE_THRESHOLD && now - lastShakeTime > 1000) { // non piu' di una volta al secondo
-        lastShakeTime = now;
-        reactTemporarily('dizzy', 1800);
+      // Il primo campione sopra soglia e' quasi sempre ancora piccolo (la scossa sta partendo):
+      // per questo NON decidiamo subito, ma teniamo il valore piu' alto visto in una breve
+      // finestra (SHAKE_WINDOW_MS) e solo dopo scegliamo tra "sorpreso" e "stordito".
+      if (delta > SHAKE_THRESHOLD && now - lastShakeTime > 1000) {
+        if (delta > shakePeak) { shakePeak = delta; }
+        if (!shakeTimer) {
+          shakeTimer = setTimeout(function () {
+            var strong = shakePeak > SHAKE_STRONG;
+            shakePeak = 0;
+            shakeTimer = null;
+            lastShakeTime = Date.now(); // da qui parte la pausa di 1 secondo
+            if (strong) { reactTemporarily('dizzy', 2500); }      // scossa forte: stordito
+            else { reactTemporarily('surprised', 1200); }         // scossa leggera: sorpreso
+          }, SHAKE_WINDOW_MS);
+        }
       }
     }
     lastX = x; lastY = y; lastZ = z;
@@ -566,6 +655,41 @@
     if (triggered) { triggerAlarm(); }
   }
 
+  // ---------- Suoneria classica a bip ----------
+  // Generata dal browser (Web Audio), non serve nessun file. Viene usata
+  // quando non hai scelto nessuna traccia: 4 bip rapidi ogni secondo.
+  var audioCtx = null, beepTimer = null;
+
+  function tone(start, dur) {
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.25, start + 0.01);
+    g.gain.linearRampToValueAtTime(0.0001, start + dur);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    if (o.start) { o.start(start); } else { o.noteOn(start); }          // noteOn/noteOff: browser vecchi
+    if (o.stop) { o.stop(start + dur + 0.02); } else { o.noteOff(start + dur + 0.02); }
+  }
+
+  function startClassicAlarm() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { return; }
+    if (!audioCtx) { audioCtx = new AC(); }
+    if (audioCtx.resume) { audioCtx.resume(); }
+    function pattern() {
+      var t = audioCtx.currentTime;
+      for (var i = 0; i < 4; i++) { tone(t + i * 0.18, 0.1); }
+    }
+    pattern();
+    beepTimer = setInterval(pattern, 1000);
+  }
+
+  function stopClassicAlarm() {
+    if (beepTimer) { clearInterval(beepTimer); beepTimer = null; }
+  }
+
   function triggerAlarm() {
     var src = pickTrackSource(); // scelta casuale ad ogni sveglia
     if (src) {
@@ -579,6 +703,8 @@
           // lo stato "sveglia", bastera' un tocco per sbloccare l'audio
         });
       }
+    } else {
+      startClassicAlarm(); // nessuna traccia scelta: suoneria classica a bip
     }
 
     alarmRinging = true;
@@ -589,6 +715,7 @@
   function stopAlarm() {
     audioEl.pause();
     audioEl.currentTime = 0;
+    stopClassicAlarm();
     alarmRinging = false;
     stopAlarmBtn.style.display = 'none';
     applyState(baseline);

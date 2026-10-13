@@ -40,7 +40,16 @@
   <button id="stop-alarm">Ferma</button>
 
   <!-- icona ingranaggio in un angolo, apre/chiude il pannello impostazioni sveglie -->
-  <button id="settings-btn" aria-label="Impostazioni sveglie">⚙</button>
+  <!-- icona sveglia disegnata in SVG (non e' un carattere di testo): cosi' si vede anche
+       sui browser vecchi, che spesso non hanno nei loro font simboli come ⚙ -->
+  <button id="settings-btn" aria-label="Impostazioni sveglie">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F4F4F8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="13" r="7"/>   <!-- quadrante -->
+      <path d="M12 9v4l2.5 2"/>         <!-- lancette -->
+      <path d="M4 5l3-2M20 5l-3-2"/>    <!-- campanelle -->
+      <path d="M6 19l-1.5 2M18 19l1.5 2"/> <!-- piedini -->
+    </svg>
+  </button>
 
   <!-- pannello impostazioni: nascosto di default (display:none nel CSS), il JS lo mostra/nasconde -->
   <div id="settings-panel">
